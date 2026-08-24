@@ -1,47 +1,29 @@
+import os
 import telebot
-import requests
 
-# Bu ýere öz bot tokeniňizi goýuň
-TOKEN = "8926438266:AAGLXYmEw1OVRMorYb-XwXKEQpQWzkmhICc"
-bot = telebot.TeleBot(TOKEN)
+# Bot tokenini alýarys
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+bot = telebot.TeleBot(BOT_TOKEN)
 
-# Start komandasy
+# /start komandasy üçin
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    text = (
-        "Salam! Kripto we Birža Botuna Hoş Geldiňiz! 🚀\n\n"
-        "Aşakdaky komandalary ulanyp bilersiňiz:\n"
-        "/crypto - Hakyky wagtaky Kripto (BTC, ETH, USDT) bahalary\n"
-        "/about - Bot barada we hyzmatlar"
-    )
-    bot.reply_to(message, text)
+    bot.reply_to(message, "Salam! Men täzelenen akylly bot. Size näme kömek edip bilerin?")
 
-# Kripto bahalaryny alyp berýän bölüm
-@bot.message_handler(commands=['crypto'])
-def send_crypto_prices(message):
-    try:
-        # CoinGecko API arkaly anlyk bahalary çekýäris
-        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd"
-        response = requests.get(url).json()
-        
-        btc = response['bitcoin']['usd']
-        eth = response['ethereum']['usd']
-        usdt = response['tether']['usd']
-        
-        msg = (
-            "📈 **Hakyky Wagtaky Kripto Kurslary:**\n\n"
-            f"🪙 **Bitcoin (BTC):** ${btc:,}\n"
-            f"💎 **Ethereum (ETH):** ${eth:,}\n"
-            f"💵 **Tether (USDT):** ${usdt}\n\n"
-            "💡 *Söwda we maýa goýum üçin hakyky baha.*"
-        )
-        bot.reply_to(message, msg, parse_mode="Markdown")
-    except Exception as e:
-        bot.reply_to(message, "Maglumatlary alyp bolmady, bir azdan täzeden synanyşyň.")
-
-# Beýleki ähli tekstler üçin
+# Ulanyjynyň ýazan habarlaryna jogap bermek
 @bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    bot.reply_to(message, "Kripto bahalaryny görmek üçin /crypto diýip ýazyň!")
+def handle_message(message):
+    text = message.text.lower()
+    
+    if "salam" in text:
+        bot.reply_to(message, "Salam! Ýagdaýlaryňyz gowymy?")
+    elif "dollar" in text or "manat" in text:
+        bot.reply_to(message, "Maliýe we kurslar barada maglumatlar basym goşular!")
+    elif "kripto" in text or "binance" in text:
+        bot.reply_to(message, "Kripto bazary baradaky täzelikler taýýarlanylýar.")
+    else:
+        bot.reply_to(message, f"Düşündim! '{message.text}' diýip ýazdyňyz. Tiz arada bu tema boýunça giňişleýin jogaplar goşular.")
 
-bot.infinity_polling()
+# Boty işletmek
+if __name__ == "__main__":
+    bot.infinity_polling()
